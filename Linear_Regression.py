@@ -1,6 +1,8 @@
+# Input là mảng 2 chiều, vd: X = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+#                            y = np.array([[1], [2], [3])
 class LR: # Linear Regression
     import numpy as np
-    def __init__(self, learning_rate=0.001, n_iters=1000, val_rate=0.2, optimizer="GD", lamda=0.9, alpha=0.9, regularization=None, beta_1=0.992, beta_2=0.999, gamma=0.9, epsilon=1e-8, mini_batch=None):
+    def __init__(self, learning_rate=0.001, n_iters=1000, val_rate=0.2, optimizer="GD", lamda=0.9, alpha=0.9, regularization=None, beta_1=0.992, beta_2=0.999, gamma=0.9, epsilon=1e-8, mini_batch=None, decay=None):
         self.lr = learning_rate
         self.n_iters = n_iters
         self.weights = None
@@ -21,6 +23,7 @@ class LR: # Linear Regression
         self.lamda = lamda
         self.alpha = alpha
         self.mini_batch = mini_batch
+        self.decay = decay
 
     def cost_function(self, y, y_predicted):
       if self.regularization == "L1":
@@ -68,7 +71,7 @@ class LR: # Linear Regression
 
         minibatches = self.mini_batch_data(X, y)
 
-        for _ in range(self.n_iters):
+        for t in range(self.n_iters):
           for minibatch in minibatches:
             X, y = minibatch
             y_predicted = X @ self.weights + self.bias
@@ -107,6 +110,9 @@ class LR: # Linear Regression
             else:
               self.weights -= self.lr * dw
               self.bias -= self.lr * db
+              
+            if self.decay != None:
+              self.lr = self.lr * (1 / (1 + self.decay * t))
 
           cost_train = self.cost_function(y, y_predicted)
           self.cost_train.append(cost_train)
