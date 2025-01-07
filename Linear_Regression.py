@@ -1,5 +1,3 @@
-# Input mảng 2 chiều, vd: X = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-#                         y = np.array([[1], [2], [3]])
 class LR: # Linear Regression
     import numpy as np
     def __init__(self, learning_rate=0.001, n_iters=1000, val_rate=0.2, optimizer="GD", lamda=0.9, alpha=0.9, regularization=None, beta_1=0.992, beta_2=0.999, gamma=0.9, epsilon=1e-8, mini_batch=None):
@@ -36,6 +34,9 @@ class LR: # Linear Regression
 
     def mini_batch_data(self, X, y): # Output là 1 mảng 3 chiều
         minibatches = []
+        if self.mini_batch == None:
+          minibatches.append((X, y))
+          return minibatches
         X_batch = []
         y_batch = []
         indices = np.random.permutation(X.shape[0])
@@ -65,56 +66,11 @@ class LR: # Linear Regression
         self.weights = np.zeros(n_features).reshape(-1, 1)
         self.bias = 0
 
-        if self.mini_batch != None:
-          minibatches = self.mini_batch_data(X, y)
+        minibatches = self.mini_batch_data(X, y)
 
-          for _ in range(self.n_iters):
-            for minibatch in minibatches:
-              X, y = minibatch
-              y_predicted = X @ self.weights + self.bias
-              y_predicted = y_predicted.reshape(-1, 1)
-
-              y_val_predicted = X_val @ self.weights + self.bias
-              y_val_predicted = y_val_predicted.reshape(-1, 1)
-
-              if self.regularization == "L1":
-                dw = (1 / n_samples) * (X.T @ (y_predicted - y)) + self.lamda * np.sign(self.weights)
-              elif self.regularization == "L2":
-                dw = (1 / n_samples) * (X.T @ (y_predicted - y)) + 2 * self.lamda * self.weights
-              elif self.regularization == "ElasticNet":
-                dw = (1 / n_samples) * (X.T @ (y_predicted - y)) + self.alpha * (self.lamda * (np.sign(self.weights) + (1 - self.lamda) * self.weights))
-              else:
-                dw = (1 / n_samples) * (X.T @ (y_predicted - y))
-              db = (1 / n_samples) * np.sum(y_predicted - y)
-
-              if self.optimizer == "Adam":
-                self.v_dw = (self.beta_1 * self.v_dw) + (1 - self.beta_1) * dw
-                self.v_db = (self.beta_1 * self.v_db) + (1 - self.beta_1) * db
-
-                self.v_2_dw = (self.beta_2 * self.v_2_dw) + (1 - self.beta_2) * dw**2
-                self.v_2_db = (self.beta_2 * self.v_2_db) + (1 - self.beta_2) * db**2
-
-                self.weights -= self.lr * (self.v_dw / (1 - self.beta_1)) / ((self.v_2_dw / (1 - self.beta_2)))**0.5 + self.epsilon
-                self.bias -= self.lr * (self.v_db / (1 - self.beta_1)) / ((self.v_2_db / (1 - self.beta_2)))**0.5 + self.epsilon
-
-              elif self.optimizer == "Momentum":
-                self.v_dw = self.gamma * self.v_dw + (1 - self.gamma) * dw
-                self.v_db = self.gamma * self.v_db + (1 - self.gamma) * db
-
-                self.weights -= self.lr * self.v_dw
-                self.bias -= self.lr * self.v_db
-
-              else:
-                self.weights -= self.lr * dw
-                self.bias -= self.lr * db
-
-            cost_train = self.cost_function(y, y_predicted)
-            self.cost_train.append(cost_train)
-
-            cost_val = self.cost_function(y_val, y_val_predicted)
-            self.cost_val.append(cost_val)
-        else:
-          for _ in range(self.n_iters):
+        for _ in range(self.n_iters):
+          for minibatch in minibatches:
+            X, y = minibatch
             y_predicted = X @ self.weights + self.bias
             y_predicted = y_predicted.reshape(-1, 1)
 
@@ -152,11 +108,11 @@ class LR: # Linear Regression
               self.weights -= self.lr * dw
               self.bias -= self.lr * db
 
-            cost_train = self.cost_function(y, y_predicted)
-            self.cost_train.append(cost_train)
+          cost_train = self.cost_function(y, y_predicted)
+          self.cost_train.append(cost_train)
 
-            cost_val = self.cost_function(y_val, y_val_predicted)
-            self.cost_val.append(cost_val)
+          cost_val = self.cost_function(y_val, y_val_predicted)
+          self.cost_val.append(cost_val)
 
     def predict(self, X):
         return X @ self.weights + self.bias
