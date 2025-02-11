@@ -35,6 +35,12 @@ class LR: # Linear Regression
       else:
         return np.mean((y - y_predicted)**2)
 
+    def Derivative(self, X, y, y_predicted):
+        n_samples = X.shape[0]
+        dw = (-2 / n_samples) * (X.T @ (y - y_predicted))
+        db = (-2 / n_samples) * np.sum(y - y_predicted)
+        return dw, db
+
     def mini_batch_data(self, X, y): # Output là 1 mảng 3 chiều
         minibatches = []
         if self.mini_batch == None:
@@ -80,15 +86,13 @@ class LR: # Linear Regression
             y_val_predicted = X_val @ self.weights + self.bias
             y_val_predicted = y_val_predicted.reshape(-1, 1)
 
+            dw, db = self.Derivative(X, y, y_predicted)
             if self.regularization == "L1":
-              dw = (1 / n_samples) * (X.T @ (y_predicted - y)) + self.lamda * np.sign(self.weights)
-            elif self.regularization == "L2":
-              dw = (1 / n_samples) * (X.T @ (y_predicted - y)) + 2 * self.lamda * self.weights
-            elif self.regularization == "ElasticNet":
-              dw = (1 / n_samples) * (X.T @ (y_predicted - y)) + self.alpha * (self.lamda * (np.sign(self.weights) + (1 - self.lamda) * self.weights))
-            else:
-              dw = (1 / n_samples) * (X.T @ (y_predicted - y))
-            db = (1 / n_samples) * np.sum(y_predicted - y)
+              dw = dw + self.lamda * np.sign(self.weights)
+            if self.regularization == "L2":
+              dw = dw + 2 * self.lamda * self.weights
+            if self.regularization == "ElasticNet":
+              dw = dw + self.alpha * (self.lamda * (np.sign(self.weights) + (1 - self.lamda) * self.weights))
 
             if self.optimizer == "Adam":
               self.v_dw = (self.beta_1 * self.v_dw) + (1 - self.beta_1) * dw
