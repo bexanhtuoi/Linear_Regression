@@ -60,8 +60,8 @@ class LR: # Linear Regression
           y_batch.append(y_batch_temp)
 
         if X.shape[0] % self.mini_batch != 0:
-          X_batch_temp = X_shuffled[i + self.mini_batch:]
-          y_batch_temp = y_shuffled[i + self.mini_batch:]
+          X_batch_temp = X_shuffled[i:]
+          y_batch_temp = y_shuffled[i:]
           X_batch.append(X_batch_temp)
           y_batch.append(y_batch_temp)
 
