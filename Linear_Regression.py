@@ -1,8 +1,9 @@
 # Input là mảng 2 chiều, vd: X = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 #                            y = np.array([[1], [2], [3])
 class LR: # Linear Regression
-    import numpy as np
     def __init__(self, learning_rate=0.001, n_iters=1000, val_rate=0, optimizer="GD", lamda=0.9, alpha=0.9, regularization=None, beta_1=0.992, beta_2=0.999, gamma=0.9, epsilon=1e-8, mini_batch=None, decay=None):
+        import numpy as np
+        from sklearn.model_selection import train_test_split
         self.lr = learning_rate
         self.n_iters = n_iters
         self.weights = None
